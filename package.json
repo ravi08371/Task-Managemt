@@ -15,6 +15,7 @@
     "@fluentui/react": "^8.122.4",
     "@fluentui/react-components": "^9.56.8",
     "@fluentui/react-datepicker-compat": "^0.4.59",
+    "@hello-pangea/dnd": "^17.0.0",
     "@lottiefiles/react-lottie-player": "^3.5.4",
     "@mui/icons-material": "^6.3.0",
     "@mui/material": "^6.3.0",

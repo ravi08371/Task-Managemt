@@ -1,40 +1,19 @@
 import React, { useState } from 'react';
-import { Box, Tabs, Tab } from '@mui/material';
+import { Box, Tabs, Tab, Typography } from '@mui/material';
 import TaskBoardView from './taskBoard/TaskBoardView';
 import TaskListView from './tasklistview/TaskListView';
 import Header from './common/Header';
 import FilterBar from './common/FilterBar';
 import AddTaskModal from '../modals/AddTaskModal';
 import { useMutation, useQueryClient } from "react-query";
+import { image } from '../../images/image';
 
 
 const TaskManager = () => {
   const [view, setView] = useState('list');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const queryClient = useQueryClient();
-  const [tasks, setTasks] = useState([]);
 
-
-  // // Mutation for adding tasks
-  // const addTaskMutation = useMutation(
-  //   (newTask) => {
-  //     // Replace with API call
-  //     return new Promise((resolve) => {
-  //       setTimeout(() => resolve(newTask), 1000);
-  //     });
-  //   },
-  //   {
-  //     onSuccess: () => {
-  //       queryClient.invalidateQueries("tasks"); // Refetch tasks
-  //     },
-  //   }
-  // );
-
-  // // const handleAddTask = (taskData) => {
-  // //   addTaskMutation.mutate(taskData);
-  // // };
-
-  // Mutation for adding tasks
   const addTaskMutation = useMutation(
     (newTask) => {
       // Simulate API call
@@ -93,7 +72,8 @@ const TaskManager = () => {
   return (
     <Box sx={{ maxWidth: 1200, margin: '0 auto', p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-        <img src="/your-logo.png" alt="TaskBuddy" height="30" />
+        <img src={image.taskIconTopIcon} alt="" height="30" />
+        <Typography style={{color:'#2F2F2F',fontSize:'24px',fontWeight:500}}>TaskBuddy</Typography>
       </Box>
       
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
@@ -111,8 +91,10 @@ const TaskManager = () => {
         </Tabs>
       </Box>
 
-      <Header onAddTask={toggleModal} />
+      <Box sx={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
       <FilterBar />
+      <Header onAddTask={toggleModal} />
+      </Box>
 
       {view === 'list' ? <TaskListView queryKey="tasks" /> : <TaskBoardView queryKey="tasks" />}
       <AddTaskModal

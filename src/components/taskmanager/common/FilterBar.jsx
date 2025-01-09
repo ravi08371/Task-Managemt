@@ -1,27 +1,47 @@
-import React from 'react';
-import { Box, Select, MenuItem } from '@mui/material';
+import React from "react";
+import { Box, Select, MenuItem } from "@mui/material";
+import { useFilterState } from "./useFilterState";
+import { useQuery, useQueryClient } from "react-query";
 
 const FilterBar = () => {
+  const { updateFilter } = useFilterState();
+  const queryClient = useQueryClient();
+  const { data: tasks = [] } = useQuery(
+    "tasks",
+    () => queryClient.getQueryData("tasks") || []
+  );
+
+  const uniqueDueDates = [...new Set(tasks?.map((task) => task.dueDate))];
+
   return (
-    <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+    <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
       <Select
-        value="category"
+        defaultValue=""
         displayEmpty
         size="small"
-        sx={{ minWidth: 120, bgcolor: 'white' }}
+        sx={{ minWidth: 120, bgcolor: "white" }}
+        onChange={(e) => updateFilter({ category: e.target.value })}
       >
-        <MenuItem value="category">Category</MenuItem>
+        <MenuItem value="">All Categories</MenuItem>
+        <MenuItem value="Work">Work</MenuItem>
+        <MenuItem value="Personal">Personal</MenuItem>
       </Select>
       <Select
-        value="dueDate"
+        defaultValue=""
         displayEmpty
         size="small"
-        sx={{ minWidth: 120, bgcolor: 'white' }}
+        sx={{ minWidth: 120, bgcolor: "white" }}
+        onChange={(e) => updateFilter({ dueDate: e.target.value })}
       >
-        <MenuItem value="dueDate">Due Date</MenuItem>
+        <MenuItem value="">All Due Dates</MenuItem>
+        {uniqueDueDates?.map((date) => (
+          <MenuItem key={date} value={date}>
+            {date}
+          </MenuItem>
+        ))}
       </Select>
     </Box>
   );
 };
 
-export default FilterBar
+export default FilterBar;

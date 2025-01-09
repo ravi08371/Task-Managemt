@@ -1,113 +1,127 @@
-// import React from 'react';
-// import { Box, Typography, Paper } from '@mui/material';
-// import AddIcon from '@mui/icons-material/Add';
-// import TaskSection from './TaskSection';
-// import { useQuery, useQueryClient } from "react-query";
-
+import React, { useState } from "react";
 import { Box } from "@mui/material";
-import { useQuery, useQueryClient } from "react-query";
+import { DragDropContext } from "@hello-pangea/dnd";
 import TaskSection from "./TaskSection";
-
-// const fetchTasks = async () => {
-//     // Simulate an API call to fetch tasks
-//     return new Promise((resolve) => {
-//       setTimeout(() => {
-//         resolve([
-//           { id: 1, title: "Task 1", status: "todo", description: "Todo Task" },
-//           { id: 2, title: "Task 2", status: "in-progress", description: "In Progress Task" },
-//           { id: 3, title: "Task 3", status: "completed", description: "Completed Task" },
-//         ]);
-//       }, 1000);
-//     });
-//   };
-
-// const TaskListView = () => {
-//     const queryClient = useQueryClient();
-
-//     const { data: tasks = [], isLoading } = useQuery("tasks", () => {
-//         console.log("Fetching tasks from cache:", queryClient.getQueryData("tasks"));
-
-//         return queryClient.getQueryData("tasks") || [];
-//       });
-
-    
-
-//     // Filter tasks into sections based on their status
-//   const todoTasks = tasks.filter((task) => task.status === "To-Do");
-//   const inProgressTasks = tasks.filter((task) => task.status === "in-progress");
-//   const completedTasks = tasks.filter((task) => task.status === "completed");
-
-//   if (isLoading) {
-//     return <Box sx={{ p: 3 }}>Loading tasks...</Box>;
-//   }
-
-//   return (
-//     <Box sx={{ p: 3 }}>
-//       <TaskSection
-//         title="Todo"
-//         tasks={todoTasks}
-//         color="#fce4ec"
-//         emptyMessage="No Tasks in To Do"
-//       />
-      
-//       <TaskSection
-//         title="In Progress"
-//         tasks={inProgressTasks}
-//         color="#e3f2fd"
-//         emptyMessage="No Tasks In Progress"
-//       />
-      
-//       <TaskSection
-//         title="Completed"
-//         tasks={completedTasks}
-//         color="#f1f8e9"
-//         emptyMessage="No Completed Tasks"
-//       />
-//     </Box>
-//   );
-// };
-  
-//   export default TaskListView;
+import { useQuery, useQueryClient } from "react-query";
+import TaskModal from "../common/TaskEditModal";
+import { useFilterState } from "../common/useFilterState";
 
 const TaskListView = () => {
-    const queryClient = useQueryClient();
-    const { data: tasks = [] } = useQuery("tasks", () => queryClient.getQueryData("tasks") || []);
+  const queryClient = useQueryClient();
+  const { data: tasks = [] } = useQuery("tasks", () => queryClient.getQueryData("tasks") || []);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const { filterState } = useFilterState();
+
+  const { searchTerm, category, dueDate } = filterState;
+
+  const handleTaskUpdate = (updatedTask) => {
+    // console.log("this is updated task-->",updatedTask);
+    // Update the task's status in the cache
+    queryClient.setQueryData("tasks", (oldTasks) =>
+      oldTasks.map((task) =>
+        task.id === updatedTask.id ? { ...task, status: updatedTask.status } : task
+      )
+    );
+  };
+
+  const handleDragEnd = (result) => {
+    // console.log("this is handleDragEnd task-->",result);
+
+    const { source, destination } = result;
+
+    if (!destination) return; // Dropped outside any droppable
+    if (source.droppableId === destination.droppableId && source.index === destination.index)
+      return; // Dropped in the same position
+
+    const draggedTask = tasks.find((task) => task.status === source.droppableId);
+    // console.log("this is draggedTask task-->",draggedTask,tasks);
+
+    if (draggedTask) {
+      const updatedTask = {
+        ...draggedTask,
+        status: destination.droppableId, // Set the new status based on the destination droppableId
+      };
+      handleTaskUpdate(updatedTask);
+    }
+  };
+
+  const handleTaskUpdateModal = (updatedTask) => {
+    // console.log("this is updated task-->", updatedTask);
+    // Update the task's status in the cache
+    queryClient.setQueryData("tasks", (oldTasks) =>
+      oldTasks.map((task) =>
+        task.id === updatedTask.id
+          ? {
+              ...task,
+              status: updatedTask?.status,
+              title: updatedTask?.title,
+              description: updatedTask?.description,
+              dueDate: updatedTask?.dueDate,
+              category: updatedTask?.category,
+              attachment: updatedTask?.attachment,
+            }
+          : task
+      )
+    );
+    setSelectedTask(null);
+  };
+
+  const handleEditClick = (task) => {
+    setSelectedTask(task); // Open modal with task data
+  };
+
   
-    const handleTaskUpdate = (updatedTask) => {
-      // Update task status in cache
-      queryClient.setQueryData("tasks", (oldTasks) =>
-        oldTasks.map((task) =>
-          task.id === updatedTask.id ? { ...task, status: updatedTask.status } : task
-        )
-      );
-    };
-  
-    return (
+  const filteredTasks = tasks?.filter((task) => {
+    const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = category ? task.category === category : true;
+    const matchesDueDate = dueDate ? task.dueDate === dueDate : true;
+
+    return matchesSearch && matchesCategory && matchesDueDate;
+  });
+
+
+  return (
+    <>
+    <DragDropContext onDragEnd={handleDragEnd}>
       <Box sx={{ p: 3 }}>
         <TaskSection
-          title="Todo"
-          tasks={tasks.filter((task) => task.status === "To-Do")}
-          color="#fce4ec"
+          title="To-Do"
+          droppableId="To-Do"
+          tasks={filteredTasks?.filter((task) => task.status === "To-Do")}
+          color="#FAC3FF"
           onTaskUpdate={handleTaskUpdate}
-          emptyMessage="No Tasks in To Do"
+          emptyMessage="No Tasks in To-Do"
+          onEdit={handleEditClick}
         />
         <TaskSection
           title="In Progress"
-          tasks={tasks.filter((task) => task.status === "in-progress")}
-          color="#e3f2fd"
+          droppableId="In Progress"
+          tasks={filteredTasks?.filter((task) => task.status === "In Progress")}
+          color="#85D9F1"
           onTaskUpdate={handleTaskUpdate}
-          emptyMessage="No Tasks In Progress"
+          emptyMessage="No Tasks in Progress"
+          onEdit={handleEditClick}
         />
         <TaskSection
           title="Completed"
-          tasks={tasks.filter((task) => task.status === "completed")}
-          color="#f1f8e9"
+          droppableId="Completed"
+          tasks={filteredTasks?.filter((task) => task.status === "Completed")}
+          color="#CEFFCC"
           onTaskUpdate={handleTaskUpdate}
           emptyMessage="No Completed Tasks"
+          onEdit={handleEditClick}
         />
       </Box>
-    );
-  };
-  
-  export default TaskListView;
-  
+    </DragDropContext>
+    {selectedTask && (
+      <TaskModal
+        task={selectedTask}
+        onClose={() => setSelectedTask(null)}
+        onSave={handleTaskUpdateModal}
+      />
+    )}
+    </>
+  );
+};
+
+export default TaskListView;

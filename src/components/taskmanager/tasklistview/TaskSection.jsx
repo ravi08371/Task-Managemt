@@ -1,47 +1,3 @@
-// import { Box, Paper, Typography } from "@mui/material";
-
-// const TaskSection = ({ title, tasks = [], color, emptyMessage }) => {
-//   return (
-//     <Paper
-//       sx={{
-//         mb: 2,
-//         bgcolor: color,
-//         overflow: "hidden",
-//         borderRadius: "8px",
-//       }}
-//     >
-//       <Box sx={{ p: 2 }}>
-//         <Typography variant="subtitle1" sx={{ mb: 2 }}>
-//           {title} (0)
-//         </Typography>
-//         {tasks.length > 0 ? (
-//           tasks.map((task) => (
-//             <Paper
-//               key={task.id}
-//               sx={{
-//                 p: 2,
-//                 mb: 2,
-//                 backgroundColor: color,
-//                 boxShadow: 0,
-//               }}
-//             >
-//               <Typography variant="subtitle1">{task.title}</Typography>
-//               <Typography variant="body2" color="text.secondary">
-//                 {task.description}
-//               </Typography>
-//             </Paper>
-//           ))
-//         ) : (
-//           <Typography variant="body2" color="text.secondary">
-//             {emptyMessage}
-//           </Typography>
-//         )}
-//       </Box>
-//     </Paper>
-//   );
-// };
-
-// export default TaskSection;
 import React, { useState } from "react";
 import {
   Box,
@@ -55,12 +11,24 @@ import {
   Popover,
   Button,
   Checkbox,
+  Typography,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { Droppable, Draggable } from "@hello-pangea/dnd";
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-const TaskSection = ({ tasks, title, color, onTaskUpdate, emptyMessage }) => {
+const TaskSection = ({
+  droppableId,
+  tasks,
+  title,
+  color,
+  onTaskUpdate,
+  emptyMessage,
+  onEdit,
+}) => {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorElStatus, setAnchorElStatus] = useState(null);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
 
   const handleMenuClick = (event, taskId) => {
@@ -72,10 +40,14 @@ const TaskSection = ({ tasks, title, color, onTaskUpdate, emptyMessage }) => {
     setAnchorEl(null);
     setSelectedTaskId(null);
   };
+  const handleMenuClickStatus = (event, taskId) => {
+    setAnchorElStatus(event.currentTarget);
+    setSelectedTaskId(taskId);
+  };
 
-  const handleEdit = () => {
-    console.log("Edit task:", selectedTaskId);
-    handleMenuClose();
+  const handleMenuCloseStatus = () => {
+    setAnchorElStatus(null);
+    setSelectedTaskId(null);
   };
 
   const handleDelete = () => {
@@ -83,26 +55,61 @@ const TaskSection = ({ tasks, title, color, onTaskUpdate, emptyMessage }) => {
     handleMenuClose();
   };
 
-  const handleDragEnd = (result) => {
-    if (!result.destination) return;
-
+  const handleTodoChange = (task) => {
+    // console.log("Todo change", task);
     const updatedTask = {
-      ...tasks[result.source.index],
-      status: title.toLowerCase(), // Update status based on section title
+      ...task,
+      status: "To-Do",
     };
     onTaskUpdate(updatedTask);
+    handleMenuCloseStatus();
+  };
+  const handleProgressChange = (task) => {
+    const updatedTask = {
+      ...task,
+      status: "In Progress",
+    };
+    onTaskUpdate(updatedTask);
+    handleMenuCloseStatus();
+  };
+  const handleCompletedChange = (task) => {
+    const updatedTask = {
+      ...task,
+      status: "Completed",
+    };
+    onTaskUpdate(updatedTask);
+    handleMenuCloseStatus();
   };
 
   return (
-    <Box sx={{ p: 2, backgroundColor: color, borderRadius: 2, mb: 2 }}>
-      <Box sx={{ mb: 2, fontWeight: "bold", fontSize: "1.2rem" }}>{title}</Box>
-      {tasks.length > 0 ? (
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable droppableId={title}>
-            {(provided) => (
+    <Box
+      sx={{
+        paddingBottom: "10px",
+        backgroundColor: "#F1F1F1",
+        borderRadius: 2,
+        mb: 2,
+      }}
+    >
+      <Box
+        sx={{
+          mb: 2,
+          p: 2,
+          fontWeight: "bold",
+          fontSize: "1.2rem",
+          backgroundColor: color,
+          borderRadius: "12px 12px 0px 0px",
+        }}
+      >
+        {title}
+      </Box>
+      {/* {tasks.length > 0 ? ( */}
+      <Droppable droppableId={droppableId}>
+        {(provided) => (
+          <Box ref={provided.innerRef} {...provided.droppableProps}>
+            {tasks.length > 0 ? (
               <TableContainer
-                {...provided.droppableProps}
-                ref={provided.innerRef}
+              // {...provided.droppableProps}
+              // ref={provided.innerRef}
               >
                 <Table>
                   <TableHead>
@@ -114,7 +121,7 @@ const TaskSection = ({ tasks, title, color, onTaskUpdate, emptyMessage }) => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {tasks.map((task, index) => (
+                    {tasks?.map((task, index) => (
                       <Draggable
                         key={task.id}
                         draggableId={String(task.id)}
@@ -129,8 +136,58 @@ const TaskSection = ({ tasks, title, color, onTaskUpdate, emptyMessage }) => {
                             <TableCell>
                               <Checkbox />
                             </TableCell>
-                            <TableCell>{task.title}</TableCell>
+                            <TableCell
+                              style={{
+                                textDecoration:
+                                  task?.status === "Completed" &&
+                                  "line-through",
+                              }}
+                            >
+                              {task.title}
+                            </TableCell>
                             <TableCell>{task.description}</TableCell>
+                            <TableCell>
+                              <Typography
+                                onClick={(e) =>
+                                  handleMenuClickStatus(e, task.id)
+                                }
+                              >
+                                {task.status}
+                              </Typography>
+                              <Popover
+                                open={Boolean(anchorElStatus)}
+                                anchorEl={anchorElStatus}
+                                onClose={handleMenuCloseStatus}
+                                anchorOrigin={{
+                                  vertical: "bottom",
+                                  horizontal: "left",
+                                }}
+                              >
+                                <Box sx={{ p: 2 }}>
+                                  <Button
+                                    fullWidth
+                                    variant="text"
+                                    onClick={() => handleTodoChange(task)}
+                                  >
+                                    To-Do
+                                  </Button>
+                                  <Button
+                                    fullWidth
+                                    variant="text"
+                                    onClick={() => handleProgressChange(task)}
+                                  >
+                                    In Progress
+                                  </Button>
+                                  <Button
+                                    fullWidth
+                                    variant="text"
+                                    onClick={() => handleCompletedChange(task)}
+                                  >
+                                    Completed
+                                  </Button>
+                                </Box>
+                              </Popover>
+                            </TableCell>
                             <TableCell>
                               <IconButton
                                 onClick={(e) => handleMenuClick(e, task.id)}
@@ -150,16 +207,37 @@ const TaskSection = ({ tasks, title, color, onTaskUpdate, emptyMessage }) => {
                                   <Button
                                     fullWidth
                                     variant="text"
-                                    onClick={handleEdit}
+                                    onClick={() => {
+                                      onEdit(task);
+                                      setAnchorEl(null);
+                                    }}
+                                    style={{
+                                      display:'flex',
+                                      flexDirection:'row',
+                                      alignItems:'center',
+                                      color:'#000000',
+                                      fontWeight:'600',
+                                      fontSize:'16px',
+                                      justifyContent:'space-evenly'
+                                    }}
                                   >
-                                    Edit
+                                    <EditIcon style={{marginRight:'6px',fontSize:'18px'}} />   Edit
                                   </Button>
                                   <Button
                                     fullWidth
                                     variant="text"
                                     onClick={handleDelete}
+                                    style={{
+                                      display:'flex',
+                                      flexDirection:'row',
+                                      alignItems:'center',
+                                      color:'#DA2F2F',
+                                      fontWeight:'600',
+                                      fontSize:'16px',
+                                      justifyContent:'space-evenly'
+                                    }}
                                   >
-                                    Delete
+                                    <DeleteIcon style={{marginRight:'6px',fontSize:'18px'}}/> Delete
                                   </Button>
                                 </Box>
                               </Popover>
@@ -172,12 +250,14 @@ const TaskSection = ({ tasks, title, color, onTaskUpdate, emptyMessage }) => {
                   </TableBody>
                 </Table>
               </TableContainer>
+            ) : (
+              <Box sx={{ textAlign: "center", color: "gray" }}>
+                {emptyMessage}
+              </Box>
             )}
-          </Droppable>
-        </DragDropContext>
-      ) : (
-        <Box sx={{ textAlign: "center", color: "gray" }}>{emptyMessage}</Box>
-      )}
+          </Box>
+        )}
+      </Droppable>
     </Box>
   );
 };
