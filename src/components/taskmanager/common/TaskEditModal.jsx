@@ -131,7 +131,7 @@ const TaskModal = ({ task, onClose, onSave }) => {
         </div>
 
         {/* Activity Log */}
-        <div className={classes.activityCard}>
+        {/* <div className={classes.activityCard}>
           <h3 className={classes.activityHeader}>Activity</h3>
           <div className={classes.activityList}>
             <div className={classes.activityItem}>
@@ -147,7 +147,7 @@ const TaskModal = ({ task, onClose, onSave }) => {
               <span>Dec 29 at 1:15 pm</span>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Attachment */}
         <div className={classes.uploadArea}>
