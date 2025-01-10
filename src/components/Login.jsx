@@ -4,14 +4,17 @@ import { useStyles } from "./styles";
 import { image } from "../images/image";
 import Stack from "@mui/material/Stack";
 import { useNavigate } from "react-router-dom";
+import { useMediaQuery } from "@mui/material";
 
 const Login = () => {
   const { user, signInWithGoogle, logout } = useFirebase();
   const classes = useStyles();
   const navigate = useNavigate();
+  const isSmallScreen = useMediaQuery("(max-width:600px)");
 
-   // If user is already logged in, redirect to dashboard
-   useEffect(() => {
+
+  // If user is already logged in, redirect to dashboard
+  useEffect(() => {
     if (user) {
       navigate("/taskmanager");
     }
@@ -34,7 +37,7 @@ const Login = () => {
           </div>
         ) : (
           <div className={classes.loginForm}>
-            <Stack>
+            <Stack style={{alignItems:isSmallScreen && 'center'}}>
               <Stack direction={"row"} alignItems={"center"}>
                 <img
                   src={image.taskicon}
@@ -50,8 +53,17 @@ const Login = () => {
                   TaskBuddy
                 </span>
               </Stack>
-              <Stack>
-                <p style={{ fontSize: "12px", fontWeight: 500 }}>
+              <Stack style={{alignItems:isSmallScreen && 'center'}}>
+                <p
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: 500,
+                    marginBottom: "18px",
+                    marginTop: "10px",
+                    textAlign:isSmallScreen && 'center',
+                    width: isSmallScreen && "89%"
+                  }}
+                >
                   Streamline your workflow and track progress effortlessly with
                   our all-in-one task management app.
                 </p>
@@ -67,7 +79,7 @@ const Login = () => {
           </div>
         )}
       </Stack>
-      <Stack style={{ width: "100%" }}>
+      <Stack style={{ width: "100%",display:isSmallScreen && 'none' }}>
         <img src={image.taskImageLoginPage} alt="" srcset="" />
       </Stack>
     </Stack>

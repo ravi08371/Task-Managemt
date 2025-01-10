@@ -1,10 +1,18 @@
 import React from "react";
-import { Box, Select, MenuItem } from "@mui/material";
+import {
+  Box,
+  Select,
+  MenuItem,
+  useMediaQuery,
+  Typography,
+} from "@mui/material";
 import { useFilterState } from "./useFilterState";
 import { useQuery, useQueryClient } from "react-query";
 
 const FilterBar = () => {
   const { updateFilter } = useFilterState();
+  const isSmallScreen = useMediaQuery("(max-width:600px)");
+
   const queryClient = useQueryClient();
   const { data: tasks = [] } = useQuery(
     "tasks",
@@ -14,12 +22,17 @@ const FilterBar = () => {
   const uniqueDueDates = [...new Set(tasks?.map((task) => task.dueDate))];
 
   return (
-    <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
+    <Box sx={{ display: "flex", gap: 2, mb: 3,width:'100%' }}>
       <Select
         defaultValue=""
         displayEmpty
         size="small"
-        sx={{ minWidth: 120, bgcolor: "white" }}
+        sx={{
+          minWidth: 120,
+          bgcolor: "white",
+          borderRadius:  "60px",
+          fontSize: isSmallScreen && "12px",
+        }}
         onChange={(e) => updateFilter({ category: e.target.value })}
       >
         <MenuItem value="">All Categories</MenuItem>
@@ -30,7 +43,12 @@ const FilterBar = () => {
         defaultValue=""
         displayEmpty
         size="small"
-        sx={{ minWidth: 120, bgcolor: "white" }}
+        sx={{
+          minWidth: 120,
+          bgcolor: "white",
+          borderRadius: "60px",
+          fontSize: isSmallScreen && "12px",
+        }}
         onChange={(e) => updateFilter({ dueDate: e.target.value })}
       >
         <MenuItem value="">All Due Dates</MenuItem>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box } from "@mui/material";
+import { Box, useMediaQuery } from "@mui/material";
 import { DragDropContext } from "@hello-pangea/dnd";
 import TaskSection from "./TaskSection";
 import { useQuery, useQueryClient } from "react-query";
@@ -11,6 +11,8 @@ const TaskListView = () => {
   const { data: tasks = [] } = useQuery("tasks", () => queryClient.getQueryData("tasks") || []);
   const [selectedTask, setSelectedTask] = useState(null);
   const { filterState } = useFilterState();
+  const isSmallScreen = useMediaQuery("(max-width:600px)");
+
 
   const { searchTerm, category, dueDate } = filterState;
 
@@ -83,7 +85,7 @@ const TaskListView = () => {
   return (
     <>
     <DragDropContext onDragEnd={handleDragEnd}>
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p:isSmallScreen? 0 :3,width:'100%' }}>
         <TaskSection
           title="To-Do"
           droppableId="To-Do"

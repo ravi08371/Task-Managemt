@@ -12,11 +12,14 @@ import {
   InputLabel,
   FormControl,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import { useStyles } from "./styles";
 
 const AddTaskModal = ({ open, onClose, onSubmit }) => {
   const classes = useStyles();
+  const isSmallScreen = useMediaQuery("(max-width:600px)");
+
 
   const [taskData, setTaskData] = useState({
     title: "",
@@ -58,28 +61,30 @@ const AddTaskModal = ({ open, onClose, onSubmit }) => {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Create Task</DialogTitle>
+      <DialogTitle style={{fontWeight:600}}>Create Task</DialogTitle>
       <DialogContent>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <TextField
-            label="Task Title"
+            placeholder="Task Title"
             name="title"
             value={taskData.title}
             onChange={handleChange}
             fullWidth
+            className={classes.textFieldStyle}
           />
           <TextField
-            label="Description"
+            placeholder="Description"
             name="description"
             value={taskData.description}
             onChange={handleChange}
             multiline
             rows={3}
             fullWidth
+            className={classes.textFieldStyle}
           />
           {/* Form Fields */}
         <div className={classes.formGrid}>
-          <div className={classes.fieldRow}>
+          <div className={classes.fieldRow} style={{display:isSmallScreen&& 'flex',flexDirection:isSmallScreen && 'column'}}>
             <div>
               <label className={classes.label}>Task Category*</label>
               <div className={classes.categoryButtons}>
@@ -104,12 +109,13 @@ const AddTaskModal = ({ open, onClose, onSubmit }) => {
             <div>
               <TextField
                 type="date"
-                label="Due Date"
+                placeholder="Due Date"
                 name="dueDate"
                 InputLabelProps={{ shrink: true }}
                 value={taskData.dueDate}
                 onChange={handleChange}
                 fullWidth
+                className={classes.textFieldStyle}
               />
             </div>
           </div>
@@ -120,6 +126,7 @@ const AddTaskModal = ({ open, onClose, onSubmit }) => {
                 name="status"
                 value={taskData.status}
                 onChange={handleChange}
+                className={classes.textFieldStyle}
               >
                 <MenuItem value="To-Do">To-Do</MenuItem>
                 <MenuItem value="In Progress">In Progress</MenuItem>
@@ -128,10 +135,10 @@ const AddTaskModal = ({ open, onClose, onSubmit }) => {
             </FormControl>
           </div>
         </div>
-          <div className={classes.dropZone}>
+          <div className={classes.dropZone} style={{fontSize:isSmallScreen && '12px'}}>
             Drop your files here to{" "}
-          <Button component="label">
-            Upload Attachment
+          <Button component="label" style={{fontSize:isSmallScreen && '12px'}}>
+            Upload 
             <input
               type="file"
               hidden

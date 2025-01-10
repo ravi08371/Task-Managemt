@@ -12,11 +12,13 @@ import {
   Button,
   Checkbox,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Droppable, Draggable } from "@hello-pangea/dnd";
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 const TaskSection = ({
   droppableId,
@@ -28,6 +30,8 @@ const TaskSection = ({
   onEdit,
 }) => {
   const [anchorEl, setAnchorEl] = useState(null);
+  const isSmallScreen = useMediaQuery("(max-width:600px)");
+
   const [anchorElStatus, setAnchorElStatus] = useState(null);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
 
@@ -114,10 +118,13 @@ const TaskSection = ({
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell>Select</TableCell>
-                      <TableCell>Title</TableCell>
-                      <TableCell>Description</TableCell>
-                      <TableCell>Actions</TableCell>
+                      <TableCell width={10}>Select</TableCell>
+                      <TableCell width={10}></TableCell>
+                      <TableCell>Task name</TableCell>
+                      <TableCell style={{display: isSmallScreen && 'none'}}>Description</TableCell>
+                      <TableCell style={{display: isSmallScreen && 'none'}}>Due on</TableCell>
+                      <TableCell style={{display: isSmallScreen && 'none'}}>Task Category</TableCell>
+                      <TableCell style={{display: isSmallScreen && 'none'}}>Task Status</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -133,20 +140,38 @@ const TaskSection = ({
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
                           >
-                            <TableCell>
+                            <TableCell width={10}>
                               <Checkbox />
+                            </TableCell>
+                            <TableCell width={10}>
+                              <CheckCircleIcon
+                                style={{
+                                  width: "20px",
+                                  height: "20px",
+                                  marginTop: "4px",
+                                  color:
+                                    task?.status === "Completed"
+                                      ? "green"
+                                      : "grey",
+                                }}
+                              />
                             </TableCell>
                             <TableCell
                               style={{
                                 textDecoration:
                                   task?.status === "Completed" &&
                                   "line-through",
+                                textTransform: "capitalize",
                               }}
                             >
                               {task.title}
                             </TableCell>
-                            <TableCell>{task.description}</TableCell>
-                            <TableCell>
+                            <TableCell style={{ textTransform: "capitalize" ,display: isSmallScreen && 'none'}}>
+                              {task.description}
+                            </TableCell>
+                            <TableCell style={{display: isSmallScreen && 'none'}}>{task.dueDate}</TableCell>
+                            <TableCell style={{display: isSmallScreen && 'none'}}>{task.category}</TableCell>
+                            <TableCell style={{display: isSmallScreen && 'none'}}>
                               <Typography
                                 onClick={(e) =>
                                   handleMenuClickStatus(e, task.id)
@@ -162,12 +187,14 @@ const TaskSection = ({
                                   vertical: "bottom",
                                   horizontal: "left",
                                 }}
+                               
                               >
-                                <Box sx={{ p: 2 }}>
+                                <Box sx={{ p: 1 }}>
                                   <Button
                                     fullWidth
                                     variant="text"
                                     onClick={() => handleTodoChange(task)}
+                                    style={{fontSize:'12px',fontWeight:600,color:'#000'}}
                                   >
                                     To-Do
                                   </Button>
@@ -175,6 +202,7 @@ const TaskSection = ({
                                     fullWidth
                                     variant="text"
                                     onClick={() => handleProgressChange(task)}
+                                    style={{fontSize:'12px',fontWeight:600,color:'#000'}}
                                   >
                                     In Progress
                                   </Button>
@@ -182,13 +210,16 @@ const TaskSection = ({
                                     fullWidth
                                     variant="text"
                                     onClick={() => handleCompletedChange(task)}
+                                    style={{fontSize:'12px',fontWeight:600,color:'#000'}}
                                   >
                                     Completed
                                   </Button>
                                 </Box>
                               </Popover>
                             </TableCell>
-                            <TableCell>
+                            <TableCell 
+                            // style={{display: isSmallScreen && 'none'}}
+                            >
                               <IconButton
                                 onClick={(e) => handleMenuClick(e, task.id)}
                               >
@@ -212,32 +243,44 @@ const TaskSection = ({
                                       setAnchorEl(null);
                                     }}
                                     style={{
-                                      display:'flex',
-                                      flexDirection:'row',
-                                      alignItems:'center',
-                                      color:'#000000',
-                                      fontWeight:'600',
-                                      fontSize:'16px',
-                                      justifyContent:'space-evenly'
+                                      display: "flex",
+                                      flexDirection: "row",
+                                      alignItems: "center",
+                                      color: "#000000",
+                                      fontWeight: "600",
+                                      fontSize: "16px",
+                                      justifyContent: "space-evenly",
                                     }}
                                   >
-                                    <EditIcon style={{marginRight:'6px',fontSize:'18px'}} />   Edit
+                                    <EditIcon
+                                      style={{
+                                        marginRight: "6px",
+                                        fontSize: "18px",
+                                      }}
+                                    />{" "}
+                                    Edit
                                   </Button>
                                   <Button
                                     fullWidth
                                     variant="text"
                                     onClick={handleDelete}
                                     style={{
-                                      display:'flex',
-                                      flexDirection:'row',
-                                      alignItems:'center',
-                                      color:'#DA2F2F',
-                                      fontWeight:'600',
-                                      fontSize:'16px',
-                                      justifyContent:'space-evenly'
+                                      display: "flex",
+                                      flexDirection: "row",
+                                      alignItems: "center",
+                                      color: "#DA2F2F",
+                                      fontWeight: "600",
+                                      fontSize: "16px",
+                                      justifyContent: "space-evenly",
                                     }}
                                   >
-                                    <DeleteIcon style={{marginRight:'6px',fontSize:'18px'}}/> Delete
+                                    <DeleteIcon
+                                      style={{
+                                        marginRight: "6px",
+                                        fontSize: "18px",
+                                      }}
+                                    />{" "}
+                                    Delete
                                   </Button>
                                 </Box>
                               </Popover>

@@ -57,7 +57,7 @@ export const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
   },
   loginForm: {
-    // width: "360px",
+    width: "360px",
   },
   googleButton: {
     padding: "1rem 2rem",

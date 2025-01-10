@@ -9,10 +9,13 @@ import {
   Select,
   TextField,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 
 const TaskModal = ({ task, onClose, onSave }) => {
   const classes = useStyles();
+  const isSmallScreen = useMediaQuery("(max-width:600px)");
+
   const [formData, setFormData] = useState({
     title: task.title,
     description: task.description,
@@ -58,6 +61,7 @@ const TaskModal = ({ task, onClose, onSave }) => {
             value={formData.title}
             onChange={handleChange}
             fullWidth
+            className={classes.textFieldStyle}
           />
         </div>
         <TextField
@@ -68,12 +72,13 @@ const TaskModal = ({ task, onClose, onSave }) => {
           multiline
           rows={3}
           fullWidth
+          className={classes.textFieldStyle}
         />
         <div className={classes.charCount}>{charCount}/300 characters</div>
 
         {/* Form Fields */}
         <div className={classes.formGrid}>
-          <div className={classes.fieldRow}>
+          <div className={classes.fieldRow}style={{display:isSmallScreen&& 'flex',flexDirection:isSmallScreen && 'column'}}>
             <div>
               <label className={classes.label}>Task Category*</label>
               <div className={classes.categoryButtons}>
@@ -104,6 +109,7 @@ const TaskModal = ({ task, onClose, onSave }) => {
                 value={formData.dueDate}
                 onChange={handleChange}
                 fullWidth
+                className={classes.textFieldStyle}
               />
             </div>
           </div>
@@ -114,6 +120,7 @@ const TaskModal = ({ task, onClose, onSave }) => {
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
+                className={classes.textFieldStyle}
               >
                 <MenuItem value="To-Do">To-Do</MenuItem>
                 <MenuItem value="In Progress">In Progress</MenuItem>
@@ -145,10 +152,10 @@ const TaskModal = ({ task, onClose, onSave }) => {
         {/* Attachment */}
         <div className={classes.uploadArea}>
           <label className={classes.label}>Attachment</label>
-          <div className={classes.dropZone}>
+          <div className={classes.dropZone}style={{fontSize:isSmallScreen && '12px'}}>
             Drop your files here to{" "}
-            <Button component="label" className={classes.uploadLink}>
-              Upload Attachment
+            <Button component="label" className={classes.uploadLink}style={{fontSize:isSmallScreen && '12px'}}>
+              Update 
               <input
                 type="file"
                 hidden

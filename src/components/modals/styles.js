@@ -197,4 +197,9 @@ export const useStyles = makeStyles((theme) => ({
       backgroundColor: "#7e22ce",
     },
   },
+  textFieldStyle: {
+    backgroundColor: "#F1F1F15C",
+    borderRadius: "8px",
+    fontSize: "14px",
+  },
 }));
